@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text Summarizer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: #007bff;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 700px;
+      height: 180px;
+      padding: 1rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .summary-box {
+      margin-top: 2rem;
+      background: #ffffff;
+      padding: 1.2rem;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      max-width: 700px;
+      width: 100%;
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Text Summarizer</h1>
+  <textarea id="inputText" placeholder="Paste or write your text here..."></textarea>
+  <button onclick="summarizeText()">Summarize</button>
+
+  <div class="summary-box" id="summaryBox" style="display:none;">
+    <h3>Summary:</h3>
+    <p id="summaryOutput"></p>
+  </div>
+
+  <footer>
+    &copy; <span id="year"></span> Manikanta Venkateswarlu — All rights reserved
+  </footer>
+
+  <script>
+    function summarizeText() {
+      const text = document.getElementById("inputText").value;
+      if (!text.trim()) return alert("Please enter some text.");
+
+      const sentences = text.match(/[^\.!\?]+[\.!\?]+/g) || [text];
+      const wordCounts = {};
+
+      const words = text.toLowerCase().match(/\w+/g);
+      words.forEach(word => {
+        wordCounts[word] = (wordCounts[word] || 0) + 1;
+      });
+
+      const scoredSentences = sentences.map(sentence => {
+        let score = 0;
+        const sentenceWords = sentence.toLowerCase().match(/\w+/g) || [];
+        sentenceWords.forEach(word => {
+          score += wordCounts[word] || 0;
+        });
+        return { sentence, score };
+      });
+
+      scoredSentences.sort((a, b) => b.score - a.score);
+      const summaryCount = Math.max(1, Math.floor(sentences.length / 3));
+      const summary = scoredSentences.slice(0, summaryCount).map(s => s.sentence.trim()).join(" ");
+
+      document.getElementById("summaryOutput").innerText = summary;
+      document.getElementById("summaryBox").style.display = "block";
+    }
+
+    // Auto-update copyright year
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
